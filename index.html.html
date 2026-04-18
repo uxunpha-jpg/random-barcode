@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>Barcode Random 3-Digits</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <style>
+        body {
+            font-family: 'Kanit', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+        }
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            text-align: center;
+            border: 2px solid #007bff;
+        }
+        .code-display {
+            font-size: 32px;
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+        }
+        .btn-group {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-random { background-color: #007bff; color: white; }
+        .btn-random:active { transform: scale(0.95); }
+        .btn-reset { background-color: #6c757d; color: white; }
+        .status-tag {
+            display: inline-block;
+            padding: 5px 15px;
+            background: #e7f3ff;
+            color: #007bff;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="status-tag">สแกนเพื่อสุ่มเลขใหม่</div>
+    <div class="code-display" id="code-text">D-65000001</div>
+    <svg id="barcode"></svg>
+
+    <div class="btn-group">
+        <button class="btn-random" onclick="generateRandom()">สุ่ม 3 ตัวหลัง</button>
+        <button class="btn-reset" onclick="resetCode()">เริ่มที่ 001</button>
+    </div>
+</div>
+
+<script>
+    // กำหนดค่าคงที่ด้านหน้า
+    const fixedPrefix = "D-65000";
+
+    // ฟังก์ชันสุ่มเฉพาะ 3 หลักสุดท้าย (000 - 999)
+    function getRandomThreeDigits() {
+        const rand = Math.floor(Math.random() * 1000); // สุ่ม 0 ถึง 999
+        return rand.toString().padStart(3, '0');
+    }
+
+    // ฟังก์ชันสร้างและแสดงบาร์โค้ด
+    function renderBarcode(fullCode) {
+        document.getElementById('code-text').innerText = fullCode;
+        JsBarcode("#barcode", fullCode, {
+            format: "CODE128",
+            width: 2.5,
+            height: 100,
+            displayValue: false, // ซ่อนเลขเล็กด้านล่าง (โชว์ตัวใหญ่ด้านบนแทน)
+            lineColor: "#222"
+        });
+    }
+
+    // สั่งสุ่ม
+    function generateRandom() {
+        const newCode = fixedPrefix + getRandomThreeDigits();
+        renderBarcode(newCode);
+    }
+
+    // รีเซ็ตเป็นค่าเริ่มต้น
+    function resetCode() {
+        renderBarcode(fixedPrefix + "001");
+    }
+
+    // เมื่อมีการสแกน (เครื่องสแกนส่ง Enter) ให้สุ่มทันที
+    document.addEventListener('keydown', function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault(); // ป้องกันการรีเฟรชหน้าจอในบางกรณี
+            generateRandom();
+        }
+    });
+
+    // เริ่มต้นหน้าจอ
+    resetCode();
+</script>
+
+</body>
+</html>
